@@ -10,8 +10,8 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/urfave/cli"
 	"github.com/gorilla/websocket"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -21,17 +21,17 @@ func main() {
 	app.Action = ActionMain
 
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "origin",
-			Value:  "samehost",
-			Usage:  "URL to use for the origin header ('samehost' is special)",
-			EnvVar: "WSCAT_ORIGIN",
+		&cli.StringFlag{
+			Name:    "origin",
+			Value:   "samehost",
+			Usage:   "URL to use for the origin header ('samehost' is special)",
+			EnvVars: []string{"WSCAT_ORIGIN"},
 		},
-		cli.StringSliceFlag{
-			Name:   "header, H",
-			Usage:  "headers to pass to the remote",
-			Value:  &cli.StringSlice{},
-			EnvVar: "WSCAT_HEADER",
+		&cli.StringSliceFlag{
+			Name:    "header, H",
+			Usage:   "headers to pass to the remote",
+			Value:   &cli.StringSlice{},
+			EnvVars: []string{"WSCAT_HEADER"},
 		},
 	}
 
@@ -76,11 +76,11 @@ func MustParseURL(u string) *url.URL {
 	return tgt
 }
 
-func ActionMain(c *cli.Context) {
+func ActionMain(c *cli.Context) error {
 
 	args := c.Args()
 
-	if len(args) < 1 {
+	if args.Len() < 1 {
 		log.Fatalf("usage: wscat <url>")
 	}
 
@@ -162,4 +162,5 @@ func ActionMain(c *cli.Context) {
 	}()
 
 	<-errc
+	return nil
 }
