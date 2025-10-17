@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -11,32 +12,33 @@ import (
 	"regexp"
 
 	"github.com/gorilla/websocket"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "wscat"
-	app.Usage = "cat, but for websockets"
-	app.Action = ActionMain
-
-	app.Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "origin",
-			Value:   "samehost",
-			Usage:   "URL to use for the origin header ('samehost' is special)",
-			EnvVars: []string{"WSCAT_ORIGIN"},
-		},
-		&cli.StringSliceFlag{
-			Name:    "header",
-			Aliases: []string{"H"},
-			Usage:   "headers to pass to the remote",
-			Value:   &cli.StringSlice{},
-			EnvVars: []string{"WSCAT_HEADER"},
+	cmd := cli.Command{
+		Name:   "wscat",
+		Usage:  "cat, but for websockets",
+		Action: ActionMain,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "origin",
+				Value:   "samehost",
+				Usage:   "URL to use for the origin header ('samehost' is special)",
+				Sources: cli.EnvVars("WSCAT_ORIGIN"),
+			},
+			&cli.StringSliceFlag{
+				Name:    "header",
+				Aliases: []string{"H"},
+				Usage:   "headers to pass to the remote",
+				Sources: cli.EnvVars("WSCAT_HEADER"),
+			},
 		},
 	}
 
-	app.Run(os.Args)
+	if err := cmd.Run(context.Background(), os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
 
 var RegexParseHeader = regexp.MustCompile("^\\s*([^\\:]+)\\s*:\\s*(.*)$")
@@ -52,7 +54,7 @@ func MustParseHeader(header string) (string, string) {
 	return parts[1], parts[2]
 }
 
-func MustParseHeaders(c *cli.Context) http.Header {
+func MustParseHeaders(c *cli.Command) http.Header {
 	headers := http.Header{}
 
 	for _, h := range c.StringSlice("header") {
@@ -77,7 +79,7 @@ func MustParseURL(u string) *url.URL {
 	return tgt
 }
 
-func ActionMain(c *cli.Context) error {
+func ActionMain(_ context.Context, c *cli.Command) error {
 
 	args := c.Args()
 
