@@ -28,7 +28,8 @@ func main() {
 			EnvVars: []string{"WSCAT_ORIGIN"},
 		},
 		&cli.StringSliceFlag{
-			Name:    "header, H",
+			Name:    "header",
+			Aliases: []string{"H"},
 			Usage:   "headers to pass to the remote",
 			Value:   &cli.StringSlice{},
 			EnvVars: []string{"WSCAT_HEADER"},
