@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -20,4 +20,4 @@ jobs:
 
       - name: Run
         run: |
-          ./wscat wss://echo.websocket.events
+          ./wscat wss://echo.websocket.org
