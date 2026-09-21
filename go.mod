@@ -1,6 +1,6 @@
 module github.com/sensiblecodeio/wscat
 
-go 1.25.3
+go 1.27
 
 require (
 	github.com/gorilla/websocket v1.5.3
